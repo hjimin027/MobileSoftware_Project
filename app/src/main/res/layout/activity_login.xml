@@ -1,26 +1,106 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
-<!--    xmlns:app="http://schemas.android.com/apk/res-auto"-->
-<!--    xmlns:tools="http://schemas.android.com/tools"-->
-<!--    android:id="@+id/main"-->
-<!--    android:layout_width="match_parent"-->
-<!--    android:layout_height="match_parent"-->
-<!--    tools:context=".LoginActivity">-->
-
-<!--</androidx.constraintlayout.widget.ConstraintLayout>-->
-<!-- Auto layout, variables, and unit scale are not yet supported -->
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/activity_lo"
-    android:layout_width="360dp"
-    android:layout_height="800dp"
-    android:clipToOutline="true"
-    android:background="#FFFFFF">
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/login"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".LoginActivity">
 
     <ImageView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="208dp"
+        android:src="@drawable/icon"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="276dp"
+        android:layout_marginStart="45dp"
+        android:layout_marginTop="274dp"
+        android:layout_marginEnd="45dp"
+        android:layout_marginBottom="17dp"
+        android:orientation="vertical"
+        android:padding="20dp"
+        app:layout_constraintBottom_toTopOf="@+id/button2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/colorPrimary"
+            android:text="이메일"
+            android:textSize="16dp" />
+
+        <EditText
+            android:id="@+id/login_email"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:backgroundTint="@color/colorPrimary"
+            android:ems="10"
+            android:inputType="textEmailAddress"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:backgroundTint="@color/colorPrimary"
+            android:text="비밀번호"
+            android:textSize="16dp" />
+
+        <EditText
+            android:id="@+id/login_pw"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:backgroundTint="@color/colorPrimary"
+            android:ems="10"
+            android:inputType="textPassword"/>
+
+        <Button
+            android:id="@+id/login_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:backgroundTint="@color/colorPrimary"
+            android:text="로그인"
+            app:cornerRadius="8dp" />
+
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/login_register"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/icon"/>
+        android:layout_height="35dp"
+        android:layout_marginEnd="92dp"
+        android:layout_marginBottom="128dp"
+        android:backgroundTint="@color/colorPrimary"
+        android:padding="0dp"
+        android:text="회원가입"
+        app:cornerRadius="4dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="35dp"
+        android:layout_marginStart="84dp"
+        android:layout_marginEnd="29dp"
+        android:gravity="center"
+        android:text="계정이 없으신가요?"
+        app:layout_constraintBottom_toBottomOf="@+id/login_register"
+        app:layout_constraintEnd_toStartOf="@+id/login_register"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/login_register"
+        app:layout_constraintVertical_bias="1.0" />
 
 
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
