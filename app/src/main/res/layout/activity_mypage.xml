@@ -25,6 +25,7 @@
 
         <ImageView
             android:id="@+id/mypage_image"
+            android:src="@drawable/account"
             android:layout_width="130dp"
             android:layout_height="130dp"
             android:layout_marginTop="20dp"
@@ -58,5 +59,15 @@
             android:padding="10dp" />
 
     </LinearLayout>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigation"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        app:labelVisibilityMode="labeled"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:menu="@menu/nav_menu" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
