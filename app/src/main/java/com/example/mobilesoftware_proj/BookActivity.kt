@@ -5,16 +5,22 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.mobilesoftware_proj.databinding.ActivityBookBinding
+import com.google.android.material.datepicker.MaterialDatePicker
 
 class BookActivity : AppCompatActivity() {
+    val binding by lazy { ActivityBookBinding.inflate(layoutInflater) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContentView(R.layout.activity_book)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
+        setContentView(binding.root)
     }
+
+    binding.calender.setOnClickListener {
+        val dataRangePicker = MaterialDatePicker.Builder.dateRangePicker()
+            .setTitleText("Select Date")
+            .build()
+    }
+
+
 }
