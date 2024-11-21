@@ -7,109 +7,126 @@
     android:layout_height="match_parent"
     tools:context=".InfoActivity">
 
+    <TextView
+        android:id="@+id/info_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="35dp"
+        android:text="회원 정보"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+            android:id="@+id/view"
+            android:layout_width="370dp"
+            android:layout_height="1dp"
+            android:background="@color/black"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/info_title"
+            android:layout_marginTop="5dp"/>
+
+    <TextView
+        android:id="@+id/info_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp"
+        android:text="닉네임"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="@+id/info_name_layout"
+        app:layout_constraintTop_toBottomOf="@+id/view" />
+
     <LinearLayout
-        android:id="@+id/info_layout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:id="@+id/info_name_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/info_name"
+        android:layout_marginTop="10dp"
+        >
 
-        <TextView
-            android:id="@+id/info_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="32sp"
-            android:textStyle="bold"
-            android:text="회원 정보"
-            android:layout_gravity="center"
-            android:layout_marginTop="30dp"/>
+        <EditText
+            android:id="@+id/info_name_edit"
+            android:layout_width="260dp"
+            android:layout_height="48dp" />
 
-        <TextView
-            android:id="@+id/info_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:text="닉네임"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="20dp"/>
-
-        <LinearLayout
-            android:id="@+id/info_name_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <EditText
-                android:id="@+id/info_name_edit"
-                android:layout_width="260dp"
-                android:layout_height="60dp"
-                android:layout_marginLeft="20dp"
-                android:layout_marginTop="10dp"/>
-
-            <Button
-                android:id="@+id/info_name_button"
-                android:layout_width="100dp"
-                android:layout_height="60dp"
-                android:text="저장"
-                android:layout_marginLeft="10dp"
-                android:layout_marginTop="10dp"
-                app:cornerRadius="8dp"
-                android:backgroundTint="@color/colorPrimary"/>
-
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/info_email"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:text="이메일"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="20dp"/>
-
-        <TextView
-            android:id="@+id/info_email_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="20sp"
-            android:layout_marginLeft="20dp"/>
-
-        <TextView
-            android:id="@+id/info_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:text="가입일"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="20dp"/>
-
-        <TextView
-            android:id="@+id/info_date_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="20sp"
-            android:layout_marginLeft="20dp"/>
-
-        <TextView
-            android:id="@+id/info_version"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:text="앱 버전"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="20dp"/>
-
-        <TextView
-            android:id="@+id/info_version_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="20sp"
-            android:layout_marginLeft="20dp"
-            android:text="1.0.0"/>
-
+        <Button
+            android:id="@+id/info_name_button"
+            android:layout_width="80dp"
+            android:layout_height="48dp"
+            android:layout_marginLeft="10dp"
+            android:backgroundTint="@color/colorPrimary"
+            android:text="저장"
+            app:cornerRadius="8dp" />
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/info_email"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp"
+        android:text="이메일"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="@+id/info_name_layout"
+        app:layout_constraintTop_toBottomOf="@+id/info_name_layout" />
+
+    <TextView
+        android:textSize="20sp"
+        android:id="@+id/info_email_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        app:layout_constraintEnd_toStartOf="@+id/info_email"
+        app:layout_constraintTop_toBottomOf="@+id/info_email"
+        android:layout_marginLeft="20dp"/>
+
+    <TextView
+        android:id="@+id/info_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="가입일"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:layout_marginTop="25dp"
+        app:layout_constraintStart_toStartOf="@id/info_email_text"
+        app:layout_constraintTop_toBottomOf="@+id/info_email_text" />
+
+    <TextView
+        android:id="@+id/info_date_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:layout_marginTop="10dp"
+        app:layout_constraintStart_toStartOf="@id/info_date"
+        app:layout_constraintTop_toBottomOf="@+id/info_date" />
+
+    <TextView
+        android:id="@+id/info_version"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="앱 버전"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:layout_marginTop="25dp"
+        app:layout_constraintStart_toStartOf="@id/info_date_text"
+        app:layout_constraintTop_toBottomOf="@+id/info_date_text" />
+
+    <TextView
+        android:id="@+id/info_version_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="1.0.0"
+        android:textSize="20sp"
+        android:layout_marginTop="10dp"
+        app:layout_constraintStart_toStartOf="@id/info_version"
+        app:layout_constraintTop_toBottomOf="@+id/info_version" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
