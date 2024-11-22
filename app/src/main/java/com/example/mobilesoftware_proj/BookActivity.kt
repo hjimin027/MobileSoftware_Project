@@ -16,11 +16,5 @@ class BookActivity : AppCompatActivity() {
         setContentView(binding.root)
     }
 
-    binding.calender.setOnClickListener {
-        val dataRangePicker = MaterialDatePicker.Builder.dateRangePicker()
-            .setTitleText("Select Date")
-            .build()
-    }
-
 
 }
