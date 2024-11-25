@@ -59,7 +59,7 @@
             android:textSize="16sp" />
 
         <EditText
-            android:id="@+id/register_pwd"
+            android:id="@+id/register_pw"
             android:layout_width="250dp"
             android:layout_height="50dp"
             android:layout_gravity="center"
