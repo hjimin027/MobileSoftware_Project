@@ -7,12 +7,16 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.mobilesoftware_proj.databinding.ActivityMypageBinding
+import com.google.firebase.auth.FirebaseAuth
 
 class MypageActivity : AppCompatActivity() {
+    private lateinit var auth: FirebaseAuth
     val binding by lazy { ActivityMypageBinding.inflate(layoutInflater) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+        auth = FirebaseAuth.getInstance()
 
         val bottomNavigationView = binding.bottomNavigation
 
@@ -40,6 +44,12 @@ class MypageActivity : AppCompatActivity() {
                 }
                 else -> false
             }
+        }
+
+        binding.logout.setOnClickListener {
+            auth.signOut()
+            startActivity(Intent(this, LoginActivity::class.java))
+            finish()
         }
     }
 }
