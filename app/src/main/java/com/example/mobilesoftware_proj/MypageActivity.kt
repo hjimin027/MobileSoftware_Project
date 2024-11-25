@@ -46,6 +46,11 @@ class MypageActivity : AppCompatActivity() {
             }
         }
 
+        binding.info.setOnClickListener {
+            startActivity(Intent(this, InfoActivity::class.java))
+            finish()
+        }
+
         binding.logout.setOnClickListener {
             auth.signOut()
             startActivity(Intent(this, LoginActivity::class.java))
