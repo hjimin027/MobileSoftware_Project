@@ -41,5 +41,10 @@ class myfriendActivity : AppCompatActivity() {
                 else -> false
             }
         }
+
+        binding.floatingActionButton.setOnClickListener {
+            startActivity(Intent(this, SearchFriendActivity::class.java))
+            finish()
+        }
     }
 }

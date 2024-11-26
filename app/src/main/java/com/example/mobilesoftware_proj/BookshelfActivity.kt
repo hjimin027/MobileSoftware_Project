@@ -41,5 +41,10 @@ class BookshelfActivity : AppCompatActivity() {
                 else -> false
             }
         }
+
+        binding.floatingActionButton.setOnClickListener {
+            startActivity(Intent(this, SearchBookActivity::class.java))
+            finish()
+        }
     }
 }
