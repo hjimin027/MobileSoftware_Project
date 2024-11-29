@@ -25,8 +25,14 @@ import retrofit2.http.Query
 
 class SearchBookActivity : AppCompatActivity() {
     val binding by lazy { ActivitySearchBookBinding.inflate(layoutInflater) }
-    val adapter = BookAdapter(emptyList())
+    val books: List<Book> = emptyList() //초기화
+    val adapter = BookAdapter(books){ selectedBook -> addToLibrary(selectedBook) }
     private val apiKey = "ttbnunuhelios2112001"
+
+    fun addToLibrary(book: Book) {
+        // 임시 구현
+        Toast.makeText(this, "${book.title}이(가) 서재에 추가되었습니다.", Toast.LENGTH_SHORT).show()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -97,12 +103,12 @@ class SearchBookActivity : AppCompatActivity() {
     )
 
     //리사이클러뷰 어댑터
-    class BookAdapter(var books: List<Book>) : RecyclerView.Adapter<BookAdapter.BookViewHolder>() {
+    class BookAdapter(var books: List<Book>, val onItemClick: (Book) -> Unit) : RecyclerView.Adapter<BookAdapter.BookViewHolder>() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BookViewHolder {
             val view = LayoutInflater.from(parent.context)
                 .inflate(R.layout.searchbook_recyclerview, parent, false)
-            return BookViewHolder(view)
+            return BookViewHolder(view, onItemClick)
         }
 
         override fun onBindViewHolder(holder: BookViewHolder, position: Int) {
@@ -116,7 +122,7 @@ class SearchBookActivity : AppCompatActivity() {
             notifyDataSetChanged()
         }
 
-        class BookViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        class BookViewHolder(itemView: View, val onItemClick: (Book) -> Unit) : RecyclerView.ViewHolder(itemView) {
             private val title: TextView = itemView.findViewById(R.id.book_title)
             private val author: TextView = itemView.findViewById(R.id.book_author)
             private val publisher: TextView = itemView.findViewById(R.id.book_publisher)
@@ -127,6 +133,10 @@ class SearchBookActivity : AppCompatActivity() {
                 author.text = book.author
                 publisher.text = book.publisher
                 Glide.with(itemView).load(book.cover).into(cover)
+
+                itemView.setOnClickListener {
+                    onItemClick(book)
+                }
             }
         }
     }
