@@ -24,7 +24,10 @@
                 android:layout_width="280dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:layout_marginStart="15dp"/>
+                android:layout_marginStart="15dp"
+                android:maxLines="1"
+                android:inputType="text"
+                />
 
             <Button
                 android:id="@+id/search_button"
