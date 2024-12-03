@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/friendreq_root"
+    android:layout_width="match_parent"
+    android:layout_height="80dp"
+    android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/req_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:text="이름"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="25dp"/>
+
+    <TextView
+        android:id="@+id/req_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:text="아이디"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="10dp"/>
+
+    <Button
+        android:id="@+id/accept"
+        android:layout_width="80dp"
+        android:layout_height="40dp"
+        android:backgroundTint="@color/colorPrimary"
+        app:cornerRadius="4dp"
+        android:textSize="15dp"
+        android:text="승인"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="75dp"/>
+
+    <Button
+        android:id="@+id/reject"
+        android:layout_width="80dp"
+        android:layout_height="40dp"
+        android:backgroundTint="@color/colorPrimary"
+        app:cornerRadius="4dp"
+        android:textSize="15dp"
+        android:text="거절"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="15dp"/>
+
+
+</LinearLayout>
