@@ -4,27 +4,39 @@
     android:id="@+id/friendreq_root"
     android:layout_width="match_parent"
     android:layout_height="80dp"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:gravity="center"
+    >
 
-    <TextView
-        android:id="@+id/req_name"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="220dp"
         android:layout_height="wrap_content"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:text="이름"
-        android:layout_gravity="center_vertical"
-        android:layout_marginLeft="25dp"/>
+        android:orientation="vertical"
+        android:padding="10dp"
+        >
 
-    <TextView
-        android:id="@+id/req_id"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:text="아이디"
-        android:layout_gravity="center_vertical"
-        android:layout_marginLeft="10dp"/>
+        <TextView
+            android:id="@+id/req_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:text="이름"
+            android:maxLines="1"
+            android:layout_gravity="center_vertical" />
+
+        <TextView
+            android:id="@+id/req_id"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="15sp"
+            android:text="아이디"
+            android:maxLines="1"
+            android:ellipsize="marquee"
+            android:layout_gravity="center_vertical"
+            />
+
+    </LinearLayout>
 
     <Button
         android:id="@+id/accept"
@@ -34,8 +46,7 @@
         app:cornerRadius="4dp"
         android:textSize="15dp"
         android:text="승인"
-        android:layout_gravity="center_vertical"
-        android:layout_marginLeft="75dp"/>
+        android:layout_gravity="center_vertical" />
 
     <Button
         android:id="@+id/reject"
