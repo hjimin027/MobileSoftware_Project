@@ -8,6 +8,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.mobilesoftware_proj.databinding.ActivityMypageBinding
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class MypageActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
@@ -17,6 +18,16 @@ class MypageActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         auth = FirebaseAuth.getInstance()
+
+        val db = FirebaseFirestore.getInstance()
+        val userRef = db.collection("user").document(auth.currentUser!!.uid)
+
+        userRef.get()
+            .addOnSuccessListener { document ->
+                if (document != null) {
+                    binding.name.text = document["nickname"].toString()
+                }
+            }
 
         val bottomNavigationView = binding.bottomNavigation
 
