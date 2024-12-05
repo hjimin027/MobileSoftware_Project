@@ -39,7 +39,8 @@ class RegisterActivity : AppCompatActivity() {
                     if (task.isSuccessful) {
                         val user = hashMapOf(
                             "nickname" to binding.registerName.text.toString(),
-                            "email" to email
+                            "email" to email,
+                            "user_books" to "user_books"
                         )
                         db.collection("user")
                             .document(auth.currentUser!!.uid)

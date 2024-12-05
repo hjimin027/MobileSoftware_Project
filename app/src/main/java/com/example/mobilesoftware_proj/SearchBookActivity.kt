@@ -20,6 +20,8 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import com.bumptech.glide.Glide
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -28,10 +30,30 @@ class SearchBookActivity : AppCompatActivity() {
     val books: List<Book> = emptyList() //초기화
     val adapter = BookAdapter(books){ selectedBook -> addToLibrary(selectedBook) }
     private val apiKey = "ttbnunuhelios2112001"
+    private val db = FirebaseFirestore.getInstance()
+    private lateinit var auth: FirebaseAuth
 
     fun addToLibrary(book: Book) {
         // 임시 구현
-        Toast.makeText(this, "${book.title}이(가) 서재에 추가되었습니다.", Toast.LENGTH_SHORT).show()
+        //Toast.makeText(this, "${book.title}이(가) 서재에 추가되었습니다.", Toast.LENGTH_SHORT).show()
+        auth = FirebaseAuth.getInstance()
+
+        val book = hashMapOf(
+            "title" to book.title,
+            "cover" to book.cover,
+            // "total_page" to
+            "current_page" to 0,
+            "status" to "NOTREAD"
+        )
+        db.collection("user").document(auth.currentUser!!.uid)
+            .collection("user_books")
+            .add(book)
+            .addOnSuccessListener {
+                Toast.makeText(this, "${title}이(가) 서재에 추가되었습니다.", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "서재 추가 실패: ${it.message}", Toast.LENGTH_SHORT).show()
+            }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
