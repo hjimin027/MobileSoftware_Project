@@ -47,7 +47,9 @@
             android:layout_width="250dp"
             android:layout_height="50dp"
             android:layout_gravity="center"
-            android:inputType="textEmailAddress" />
+            android:inputType="textEmailAddress"
+            android:maxLines="1"
+            />
 
         <TextView
             android:id="@+id/pwd"
@@ -63,6 +65,7 @@
             android:layout_width="250dp"
             android:layout_height="50dp"
             android:layout_gravity="center"
+            android:maxLines="1"
             android:inputType="textPassword" />
 
         <TextView
@@ -78,6 +81,8 @@
             android:id="@+id/register_name"
             android:layout_width="250dp"
             android:layout_height="50dp"
+            android:maxLines="1"
+            android:maxLength="7"
             android:layout_gravity="center" />
 
         <Button
