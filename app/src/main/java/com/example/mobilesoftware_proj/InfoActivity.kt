@@ -39,6 +39,23 @@ class InfoActivity : AppCompatActivity() {
                 Toast.makeText(this, "닉네임을 불러오는데 실패했습니다: $exception", Toast.LENGTH_SHORT).show()
             }
 
+        // 닉네임 변경
+        binding.infoNameButton.setOnClickListener {
+            val nickname = binding.infoNameEdit.text.toString()
+            if (nickname.isEmpty()) {
+                Toast.makeText(this, "닉네임을 입력해주세요.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            userRef.update("nickname", nickname)
+                .addOnSuccessListener {
+                    Toast.makeText(this, "닉네임 변경 성공!", Toast.LENGTH_SHORT).show()
+                }
+                .addOnFailureListener { exception ->
+                    Toast.makeText(this, "닉네임 변경 실패: ${exception}", Toast.LENGTH_SHORT).show()
+                }
+        }
+
         // 현재 로그인된 사용자 이메일 표시
         binding.infoEmailText.text = auth.currentUser?.email
 
