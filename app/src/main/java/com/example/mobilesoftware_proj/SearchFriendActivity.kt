@@ -11,6 +11,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mobilesoftware_proj.databinding.ActivitySearchFriendBinding
+import com.example.mobilesoftware_proj.databinding.SearchfriendRecyclerviewBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -23,7 +24,6 @@ class SearchFriendActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.recyclerview.layoutManager = LinearLayoutManager(this)
-        binding.recyclerview.adapter = adapter()
 
         binding.searchButton.setOnClickListener {
             val emailQuery = binding.searchFriend.text.toString()
@@ -83,20 +83,17 @@ class SearchFriendActivity : AppCompatActivity() {
         private val users: List<User>,
         private val onAddFriendClick: (User) -> Unit
     ) : RecyclerView.Adapter<UserAdapter.UserViewHolder>() {
-        class UserViewHolder(val binding: ItemUserBinding) : RecyclerView.ViewHolder(binding.root)
+        class UserViewHolder(val binding: SearchfriendRecyclerviewBinding) : RecyclerView.ViewHolder(binding.root)
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserViewHolder {
-            val binding = ItemUserBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            val binding = SearchfriendRecyclerviewBinding.inflate(LayoutInflater.from(parent.context), parent, false)
             return UserViewHolder(binding)
         }
 
         override fun onBindViewHolder(holder: UserViewHolder, position: Int) {
             val user = users[position]
-            holder.binding.userNickname.text = user.nickname
-            holder.binding.userEmail.text = user.email
-            holder.binding.addFriendButton.setOnClickListener {
-                onAddFriendClick(user)
-            }
+            holder.binding.friendName.text = user.nickname
+            holder.binding.friendId.text = user.email
         }
 
         override fun getItemCount() = users.size
