@@ -59,7 +59,7 @@ class InfoActivity : AppCompatActivity() {
         // 현재 로그인된 사용자 이메일 표시
         binding.infoEmailText.text = auth.currentUser?.email
 
-        // 로그인한 날짜
+        // 가입한 날짜
         //binding.infoDateText.text = auth.currentUser?.metadata?.creationTimestamp.toString()
         val creationTime = auth.currentUser?.metadata?.creationTimestamp
         if (creationTime != null) {
