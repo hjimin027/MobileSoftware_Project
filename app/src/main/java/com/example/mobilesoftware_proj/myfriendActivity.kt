@@ -46,5 +46,10 @@ class myfriendActivity : AppCompatActivity() {
             startActivity(Intent(this, SearchFriendActivity::class.java))
             finish()
         }
+
+        binding.friendReq.setOnClickListener {
+            startActivity(Intent(this, FriendReqActivity::class.java))
+            finish()
+        }
     }
 }
