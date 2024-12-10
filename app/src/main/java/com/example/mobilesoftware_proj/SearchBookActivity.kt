@@ -1,5 +1,6 @@
 package com.example.mobilesoftware_proj
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -50,6 +51,7 @@ class SearchBookActivity : AppCompatActivity() {
             .add(book)
             .addOnSuccessListener {
                 Toast.makeText(this, "${title}이(가) 서재에 추가되었습니다.", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(this, BookshelfActivity::class.java))
             }
             .addOnFailureListener {
                 Toast.makeText(this, "서재 추가 실패: ${it.message}", Toast.LENGTH_SHORT).show()
