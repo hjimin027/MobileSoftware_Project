@@ -1,20 +1,158 @@
 package com.example.mobilesoftware_proj
 
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.mobilesoftware_proj.databinding.ActivityFriendReqBinding
+import com.example.mobilesoftware_proj.databinding.FriendreqRecyclerviewBinding
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class FriendReqActivity : AppCompatActivity() {
+    private val binding by lazy { ActivityFriendReqBinding.inflate(layoutInflater) }
+    private val db by lazy { FirebaseFirestore.getInstance() }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContentView(R.layout.activity_friend_req)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
+        setContentView(binding.root)
+
+        binding.requests.layoutManager = LinearLayoutManager(this)
+
+        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
+        Log.d("FriendReqActivity", "Current UID: $currentUserId")
+        if (currentUserId == null) {
+            Toast.makeText(this, "로그인 정보를 확인해주세요.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // 실시간 요청 데이터 구독
+        db.collection("friend_req")
+            .whereEqualTo("to", currentUserId)
+            .whereEqualTo("status", "REQUEST")
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    Log.e("FriendRequest", "데이터 로드 실패", e)
+                    Toast.makeText(this, "데이터 로드 실패: ${e.message}", Toast.LENGTH_SHORT).show()
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null) {
+                    Log.d("FriendRequest", "Received ${snapshot.documents.size} documents")
+
+                    val requestList = snapshot.documents.mapNotNull { document ->
+                        val request = document.toObject(FriendRequest::class.java)
+                        request?.let { it.copy(documentId = document.id) }
+                    }
+
+                    if (requestList.isNotEmpty()) {
+                        binding.requests.adapter = FriendReqAdapter(requestList)
+                    } else {
+                        Toast.makeText(this, "친구 요청이 없습니다.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+    }
+
+    data class FriendRequest(
+        val from: String = "",
+        val to: String = "",
+        val status: String = "",
+        val documentId: String = ""
+    )
+
+    inner class FriendReqAdapter(private val requestList: List<FriendRequest>) :
+        RecyclerView.Adapter<FriendReqAdapter.FriendReqViewHolder>() {
+
+        inner class FriendReqViewHolder(val binding: FriendreqRecyclerviewBinding) :
+            RecyclerView.ViewHolder(binding.root)
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FriendReqViewHolder {
+            val binding = FriendreqRecyclerviewBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false
+            )
+            return FriendReqViewHolder(binding)
+        }
+
+        override fun onBindViewHolder(holder: FriendReqViewHolder, position: Int) {
+            val request = requestList[position]
+
+            // Firestore에서 요청 보낸 사용자의 정보 조회
+            db.collection("user")
+                .document(request.from)
+                .get()
+                .addOnSuccessListener { document ->
+                    val nickname = document.getString("nickname") ?: "알 수 없음"
+                    holder.binding.reqName.text = nickname
+                    holder.binding.reqId.text = request.from
+
+                    // 요청 수락 버튼 클릭 이벤트
+                    holder.binding.accept.setOnClickListener {
+                        acceptFriendRequest(request)
+                    }
+
+                    // 요청 거절 버튼 클릭 이벤트
+                    holder.binding.reject.setOnClickListener {
+                        rejectFriendRequest(request)
+                    }
+                }
+                .addOnFailureListener { e ->
+                    Log.e("FriendRequest", "사용자 정보 조회 실패", e)
+                    Toast.makeText(this@FriendReqActivity, "사용자 정보 조회 실패", Toast.LENGTH_SHORT).show()
+                }
+        }
+
+        override fun getItemCount() = requestList.size
+
+        // 친구 요청 수락 메서드
+        private fun acceptFriendRequest(request: FriendRequest) {
+            val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+
+            // 친구 요청 문서 업데이트
+            db.collection("friend_req")
+                .document(request.documentId)
+                .update("status", "ACCEPT")
+                .addOnSuccessListener {
+                    // 친구 목록에 추가
+                    val friendConnection = mapOf(
+                        "user1" to request.from,
+                        "user2" to currentUserId
+                    )
+                    db.collection("friends")
+                        .add(friendConnection)
+                        .addOnSuccessListener {
+                            Toast.makeText(this@FriendReqActivity, "친구 요청을 수락했습니다.", Toast.LENGTH_SHORT).show()
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("FriendRequest", "친구 추가 실패", e)
+                            Toast.makeText(this@FriendReqActivity, "친구 추가 실패", Toast.LENGTH_SHORT).show()
+                        }
+                }
+                .addOnFailureListener { e ->
+                    Log.e("FriendRequest", "친구 요청 상태 업데이트 실패", e)
+                    Toast.makeText(this@FriendReqActivity, "친구 요청 처리 실패", Toast.LENGTH_SHORT).show()
+                }
+        }
+
+        // 친구 요청 거절 메서드
+        private fun rejectFriendRequest(request: FriendRequest) {
+            // 친구 요청 문서 업데이트
+            db.collection("friend_req")
+                .document(request.documentId)
+                .update("status", "REJECT")
+                .addOnSuccessListener {
+                    Toast.makeText(this@FriendReqActivity, "친구 요청을 거절했습니다.", Toast.LENGTH_SHORT).show()
+                }
+                .addOnFailureListener { e ->
+                    Log.e("FriendRequest", "친구 요청 거절 실패", e)
+                    Toast.makeText(this@FriendReqActivity, "친구 요청 거절 실패", Toast.LENGTH_SHORT).show()
+                }
         }
     }
 }
