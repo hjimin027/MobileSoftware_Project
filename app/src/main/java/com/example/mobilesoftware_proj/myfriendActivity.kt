@@ -17,13 +17,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mobilesoftware_proj.databinding.ActivityMyfriendBinding
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
 
 class myfriendActivity : AppCompatActivity() {
     val binding by lazy { ActivityMyfriendBinding.inflate(layoutInflater) }
     private val firestore by lazy { FirebaseFirestore.getInstance() }
     private val auth by lazy { FirebaseAuth.getInstance() }
-    private val friendListAdapter by lazy { MyFriendAdapter(mutableListOf()) }
+    private val friendListAdapter by lazy { FriendListAdapter(mutableListOf()) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -88,11 +89,11 @@ class myfriendActivity : AppCompatActivity() {
         firestore.collection("friends").document(userUid)
             .get()
             .addOnSuccessListener { document ->
-                val friendUids = document.data?.keys ?: emptySet()
+                val friendUids = document.data?.keys?.toList() ?: emptyList() // 친구 UID 리스트
                 if (friendUids.isEmpty()) {
                     Toast.makeText(this, "친구가 없습니다.", Toast.LENGTH_SHORT).show()
                 } else {
-                    fetchFriendDetails(friendUids)
+                    fetchFriendDetails(friendUids) // 친구 세부 정보를 가져옵니다.
                 }
             }
             .addOnFailureListener {
@@ -100,18 +101,18 @@ class myfriendActivity : AppCompatActivity() {
             }
     }
 
-    private fun fetchFriendDetails(friendUids: Set<String>) {
-        firestore.collection("users")
-            .whereIn("uid", friendUids.toList())
+    private fun fetchFriendDetails(friendUids: List<String>) {
+        firestore.collection("user")
+            .whereIn(FieldPath.documentId(), friendUids) // 문서 ID를 기준으로 조회
             .get()
             .addOnSuccessListener { querySnapshot ->
                 val friends = querySnapshot.documents.map { document ->
                     Friend(
-                        name = document.getString("name") ?: "Unknown",
-                        id = document.getString("uid") ?: "Unknown"
+                        name = document.getString("nickname") ?: "Unknown", // 닉네임 가져오기
+                        email = document.getString("email") ?: "No Email"   // 이메일 가져오기
                     )
                 }
-                friendListAdapter.updateFriends(friends)
+                friendListAdapter.updateFriends(friends) // RecyclerView 업데이트
             }
             .addOnFailureListener {
                 Toast.makeText(this, "친구 정보를 가져오는 데 실패했습니다.", Toast.LENGTH_SHORT).show()
@@ -119,34 +120,31 @@ class myfriendActivity : AppCompatActivity() {
     }
 
     // RecyclerView Adapter
-    inner class MyFriendAdapter(private var friendList: MutableList<Friend>) :
-        RecyclerView.Adapter<MyFriendAdapter.MyFriendViewHolder>() {
+    class FriendListAdapter(private var friends: List<Friend>) : RecyclerView.Adapter<FriendListAdapter.FriendViewHolder>() {
 
-        inner class MyFriendViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-            val friendImage: ImageView = itemView.findViewById(R.id.myfriend_image)
-            val friendName: TextView = itemView.findViewById(R.id.friend_name)
-            val friendId: TextView = itemView.findViewById(R.id.friend_id)
+        class FriendViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+            val nameTextView: TextView = view.findViewById(R.id.friend_name)
+            val emailTextView: TextView = view.findViewById(R.id.friend_id)
         }
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyFriendViewHolder {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FriendViewHolder {
             val view = LayoutInflater.from(parent.context)
                 .inflate(R.layout.myfriend_recyclerview, parent, false)
-            return MyFriendViewHolder(view)
+            return FriendViewHolder(view)
         }
 
-        override fun onBindViewHolder(holder: MyFriendViewHolder, position: Int) {
-            val friend = friendList[position]
-            holder.friendName.text = friend.name
-            holder.friendId.text = friend.id
-            // 예시로 친구 이미지는 기본 이미지로 설정
-            holder.friendImage.setImageResource(R.drawable.baseline_emoji_people_24)
+        override fun onBindViewHolder(holder: FriendViewHolder, position: Int) {
+            val friend = friends[position]
+            holder.nameTextView.text = friend.name
+            holder.emailTextView.text = friend.email
         }
 
-        override fun getItemCount(): Int = friendList.size
+        override fun getItemCount(): Int {
+            return friends.size
+        }
 
         fun updateFriends(newFriends: List<Friend>) {
-            friendList.clear()
-            friendList.addAll(newFriends)
+            friends = newFriends
             notifyDataSetChanged()
         }
     }
@@ -154,5 +152,5 @@ class myfriendActivity : AppCompatActivity() {
 
 data class Friend(
     val name: String,
-    val id: String
+    val email: String
 )
