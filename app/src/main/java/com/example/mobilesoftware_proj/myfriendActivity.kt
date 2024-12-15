@@ -80,8 +80,7 @@ class myfriendActivity : AppCompatActivity() {
     }
 
     private fun loadFriends() {
-        val userUid = auth.currentUser?.uid
-        if (userUid == null) {
+        val userUid = auth.currentUser?.uid ?: run {
             Toast.makeText(this, "로그인 상태를 확인하세요.", Toast.LENGTH_SHORT).show()
             return
         }
@@ -89,11 +88,11 @@ class myfriendActivity : AppCompatActivity() {
         firestore.collection("friends").document(userUid)
             .get()
             .addOnSuccessListener { document ->
-                val friendUids = document.data?.keys?.toList() ?: emptyList() // 친구 UID 리스트
+                val friendUids = document.data?.keys?.toList() ?: emptyList()
                 if (friendUids.isEmpty()) {
                     Toast.makeText(this, "친구가 없습니다.", Toast.LENGTH_SHORT).show()
                 } else {
-                    fetchFriendDetails(friendUids) // 친구 세부 정보를 가져옵니다.
+                    fetchFriendDetails(friendUids)
                 }
             }
             .addOnFailureListener {
@@ -103,28 +102,33 @@ class myfriendActivity : AppCompatActivity() {
 
     private fun fetchFriendDetails(friendUids: List<String>) {
         firestore.collection("user")
-            .whereIn(FieldPath.documentId(), friendUids) // 문서 ID를 기준으로 조회
+            .whereIn(FieldPath.documentId(), friendUids.take(10)) // Firestore 제한 처리
             .get()
             .addOnSuccessListener { querySnapshot ->
                 val friends = querySnapshot.documents.map { document ->
                     Friend(
-                        name = document.getString("nickname") ?: "Unknown", // 닉네임 가져오기
-                        email = document.getString("email") ?: "No Email"   // 이메일 가져오기
+                        name = document.getString("nickname") ?: "Unknown",
+                        email = document.getString("email") ?: "No Email",
+                        uid = document.id
                     )
                 }
-                friendListAdapter.updateFriends(friends) // RecyclerView 업데이트
+                friendListAdapter.updateFriends(friends)
             }
             .addOnFailureListener {
                 Toast.makeText(this, "친구 정보를 가져오는 데 실패했습니다.", Toast.LENGTH_SHORT).show()
             }
     }
 
-    // RecyclerView Adapter
     class FriendListAdapter(private var friends: List<Friend>) : RecyclerView.Adapter<FriendListAdapter.FriendViewHolder>() {
-
         class FriendViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             val nameTextView: TextView = view.findViewById(R.id.friend_name)
             val emailTextView: TextView = view.findViewById(R.id.friend_id)
+
+            fun bind(friend: Friend, onClick: (String) -> Unit) {
+                nameTextView.text = friend.name
+                emailTextView.text = friend.email
+                itemView.setOnClickListener { onClick(friend.uid) }
+            }
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FriendViewHolder {
@@ -135,13 +139,14 @@ class myfriendActivity : AppCompatActivity() {
 
         override fun onBindViewHolder(holder: FriendViewHolder, position: Int) {
             val friend = friends[position]
-            holder.nameTextView.text = friend.name
-            holder.emailTextView.text = friend.email
+            holder.bind(friend) { friendUid ->
+                val intent = Intent(holder.itemView.context, FriendBookshelfActivity::class.java)
+                intent.putExtra("FRIEND_USER_ID", friendUid)
+                holder.itemView.context.startActivity(intent)
+            }
         }
 
-        override fun getItemCount(): Int {
-            return friends.size
-        }
+        override fun getItemCount(): Int = friends.size
 
         fun updateFriends(newFriends: List<Friend>) {
             friends = newFriends
@@ -152,5 +157,6 @@ class myfriendActivity : AppCompatActivity() {
 
 data class Friend(
     val name: String,
-    val email: String
+    val email: String,
+    val uid: String
 )

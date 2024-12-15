@@ -15,6 +15,9 @@
         android:theme="@style/Theme.MobileSoftware_Proj"
         tools:targetApi="31">
         <activity
+            android:name=".FriendBookshelfActivity"
+            android:exported="false" />
+        <activity
             android:name=".FriendReqActivity"
             android:exported="false" />
         <activity
