@@ -42,24 +42,58 @@ class SearchBookActivity : AppCompatActivity() {
 
     fun addToLibrary(book: Book) {
         auth = FirebaseAuth.getInstance()
+        val userId = auth.currentUser!!.uid
 
-        val bookToSave = hashMapOf(
-            "title" to book.title,
-            "cover" to book.cover,
-            "total_page" to book.totalPage, // 총 페이지 수 저장
-            "current_page" to 0,
-            "status" to "NOTREAD"
-        )
-
-        db.collection("user").document(auth.currentUser!!.uid)
+        // 해당 사용자의 user_books 컬렉션에서 같은 책이 있는지 먼저 확인
+        db.collection("user").document(userId)
             .collection("user_books")
-            .add(bookToSave)
-            .addOnSuccessListener {
-                Toast.makeText(this, "${book.title}이(가) 서재에 추가되었습니다.", Toast.LENGTH_SHORT).show()
-                startActivity(Intent(this, BookshelfActivity::class.java))
+            .whereEqualTo("isbn13", book.isbn13) // isbn13을 기준으로 중복 체크
+            .get()
+            .addOnSuccessListener { documents ->
+                if (documents.isEmpty) {
+                    // 책이 존재하지 않으면 새로 추가
+                    val bookToSave = hashMapOf(
+                        "title" to book.title,
+                        "cover" to book.cover,
+                        "isbn13" to book.isbn13, // isbn13 추가
+                        "total_page" to book.totalPage,
+                        "current_page" to 0,
+                        "status" to "NOTREAD"
+                    )
+
+                    db.collection("user").document(userId)
+                        .collection("user_books")
+                        .add(bookToSave)
+                        .addOnSuccessListener {
+                            Toast.makeText(
+                                this,
+                                "${book.title}이(가) 서재에 추가되었습니다.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            startActivity(Intent(this, BookshelfActivity::class.java))
+                        }
+                        .addOnFailureListener {
+                            Toast.makeText(
+                                this,
+                                "서재 추가 실패: ${it.message}",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                } else {
+                    // 이미 책이 존재하는 경우
+                    Toast.makeText(
+                        this,
+                        "이미 서재에 존재하는 책입니다.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
-            .addOnFailureListener {
-                Toast.makeText(this, "서재 추가 실패: ${it.message}", Toast.LENGTH_SHORT).show()
+            .addOnFailureListener { e ->
+                Toast.makeText(
+                    this,
+                    "중복 확인 중 오류 발생: ${e.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
     }
 
