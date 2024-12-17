@@ -3,6 +3,7 @@ package com.example.mobilesoftware_proj
 import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -11,9 +12,14 @@ import com.example.mobilesoftware_proj.databinding.ActivityBookBinding
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener
 import androidx.core.util.Pair
+import com.bumptech.glide.Glide
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class BookActivity : AppCompatActivity() {
     val binding by lazy { ActivityBookBinding.inflate(layoutInflater) }
+    private val db = FirebaseFirestore.getInstance()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,6 +51,38 @@ class BookActivity : AppCompatActivity() {
                 })
         }
 
+        val bookId = intent.getStringExtra("bookId")
+        if (bookId != null){
+            loadBookDetails(bookId)
+        } else{
+            Log.e("BookActivity", "bookId is null")
+        }
+    }
+
+    private fun loadBookDetails(bookId: String) {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?:return
+
+        db.collection("user")
+            .document(userId)
+            .collection("user_books")
+            .document(bookId)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document.exists()){
+                    val title = document.getString("title")
+                    val cover = document.getString("cover")
+
+                    binding.bookTitle.text = title
+                    Glide.with(this)
+                        .load(cover)
+                        .into(binding.bookImage)
+                } else{
+                    Log.e("BookActivity", "No such document")
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.e("BookActivity", "get failed with ", exception)
+            }
     }
 
 }

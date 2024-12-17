@@ -3,40 +3,31 @@ package com.example.mobilesoftware_proj
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.mobilesoftware_proj.databinding.ActivityBookshelfBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.toObject
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.sync.Mutex
+import com.google.firebase.firestore.ktx.toObject
 
 data class Book(
+    val id: String = "",
     val title: String = "",
     val cover: String = "",
 )
 
-class BookAdapter(private val bookList: List<Book>):
-    RecyclerView.Adapter<BookAdapter.BookViewHolder>() {
-        class BookViewHolder(itemView: android.view.View):
-            RecyclerView.ViewHolder(itemView) {
-                val title = itemView.findViewById<android.widget.TextView>(R.id.book_title)
-                val coverImg = itemView.findViewById<android.widget.ImageView>(R.id.bookshelf_image)
-            }
+class BookAdapter(private val bookList: List<Book>) : RecyclerView.Adapter<BookAdapter.BookViewHolder>() {
+    class BookViewHolder(itemView: android.view.View) : RecyclerView.ViewHolder(itemView) {
+        val title: android.widget.TextView = itemView.findViewById(R.id.book_title)
+        val coverImg: android.widget.ImageView = itemView.findViewById(R.id.bookshelf_image)
+    }
 
     override fun onCreateViewHolder(parent: android.view.ViewGroup, viewType: Int): BookViewHolder {
         val view = android.view.LayoutInflater.from(parent.context)
             .inflate(R.layout.bookshelf_recyclerview, parent, false)
         return BookViewHolder(view)
-
     }
 
     override fun onBindViewHolder(holder: BookViewHolder, position: Int) {
@@ -45,37 +36,38 @@ class BookAdapter(private val bookList: List<Book>):
         Glide.with(holder.itemView.context)
             .load(book.cover)
             .into(holder.coverImg)
+        holder.itemView.setOnClickListener{
+            val intent = android.content.Intent(holder.itemView.context, BookActivity::class.java)
+            intent.putExtra("bookId", book.id)
+            holder.itemView.context.startActivity(intent)
+        }
     }
 
     override fun getItemCount(): Int = bookList.size
-    }
+}
 
 class BookshelfActivity : AppCompatActivity() {
-    val binding by lazy { ActivityBookshelfBinding.inflate(layoutInflater) }
-    private val auth = FirebaseAuth.getInstance()
-    private val db = FirebaseFirestore.getInstance()
+    private val binding by lazy { ActivityBookshelfBinding.inflate(layoutInflater) }
+    private val auth by lazy { FirebaseAuth.getInstance() }
+    private val db by lazy { FirebaseFirestore.getInstance() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        val user = auth.currentUser
-        if (user != null){
-            val userId = user.uid
-            loadBooks(userId)
-        } else{
-            Log.e("Auth", "User is not signed in")
-        }
-        val bookList = mutableListOf<Book>()
+        auth.currentUser?.let { user ->
+            loadBooks(user.uid)
+        } ?: Log.e("Auth", "User is not signed in")
 
+        setupBottomNavigation()
+        setupFloatingActionButton()
+    }
 
-        val bottomNavigationView = binding.bottomNavigation
-        bottomNavigationView.selectedItemId = R.id.menu_bookshelf
-        bottomNavigationView.setOnNavigationItemSelectedListener {
+    private fun setupBottomNavigation() {
+        binding.bottomNavigation.selectedItemId = R.id.menu_bookshelf
+        binding.bottomNavigation.setOnNavigationItemSelectedListener {
             when (it.itemId) {
-                R.id.menu_bookshelf -> {
-                    true
-                }
+                R.id.menu_bookshelf -> true
                 R.id.menu_goal -> {
                     startActivity(Intent(this, CheckActivity::class.java))
                     finish()
@@ -94,7 +86,9 @@ class BookshelfActivity : AppCompatActivity() {
                 else -> false
             }
         }
+    }
 
+    private fun setupFloatingActionButton() {
         binding.floatingActionButton.setOnClickListener {
             startActivity(Intent(this, SearchBookActivity::class.java))
             finish()
@@ -111,8 +105,9 @@ class BookshelfActivity : AppCompatActivity() {
             .get()
             .addOnSuccessListener { result ->
                 for (document in result) {
-                    val book = document.toObject(Book::class.java)
-                    bookList.add(book)
+                    document.toObject<Book>().copy(id = document.id).let { book ->
+                        bookList.add(book)
+                    }
                 }
                 binding.recyclerview.adapter = BookAdapter(bookList)
             }
