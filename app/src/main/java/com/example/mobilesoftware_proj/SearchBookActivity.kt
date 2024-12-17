@@ -15,6 +15,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.lifecycle.lifecycleScope
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -23,6 +24,11 @@ import retrofit2.converter.gson.GsonConverterFactory
 import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -35,28 +41,28 @@ class SearchBookActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
 
     fun addToLibrary(book: Book) {
-        // 임시 구현
-        //Toast.makeText(this, "${book.title}이(가) 서재에 추가되었습니다.", Toast.LENGTH_SHORT).show()
         auth = FirebaseAuth.getInstance()
 
-        val book = hashMapOf(
+        val bookToSave = hashMapOf(
             "title" to book.title,
             "cover" to book.cover,
-            // "total_page" to
+            "total_page" to book.totalPage, // 총 페이지 수 저장
             "current_page" to 0,
             "status" to "NOTREAD"
         )
+
         db.collection("user").document(auth.currentUser!!.uid)
             .collection("user_books")
-            .add(book)
+            .add(bookToSave)
             .addOnSuccessListener {
-                Toast.makeText(this, "${title}이(가) 서재에 추가되었습니다.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "${book.title}이(가) 서재에 추가되었습니다.", Toast.LENGTH_SHORT).show()
                 startActivity(Intent(this, BookshelfActivity::class.java))
             }
             .addOnFailureListener {
                 Toast.makeText(this, "서재 추가 실패: ${it.message}", Toast.LENGTH_SHORT).show()
             }
     }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,31 +82,41 @@ class SearchBookActivity : AppCompatActivity() {
             }
         }
     }
-    private fun searchBooks(query: String) {
+
+    private fun searchBooks(query: String) = lifecycleScope.launch {
         val api = Retrofit.Builder()
             .baseUrl("https://www.aladin.co.kr/ttb/api/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(AladinAPI::class.java)
 
-        api.searchBooks(apiKey, query).enqueue(object : Callback<BookSearchResponse> {
-            override fun onResponse(call: Call<BookSearchResponse>, response: Response<BookSearchResponse>) {
-                if (response.isSuccessful) {
-                    val books = response.body()?.item ?: emptyList()
-                    adapter.updateBooks(books)
-                } else {
-                    Toast.makeText(this@SearchBookActivity, "검색 결과를 불러올 수 없습니다.", Toast.LENGTH_SHORT).show()
-                }
+        try {
+            val searchResponse = withContext(Dispatchers.IO) {
+                api.searchBooks(apiKey, query).execute()
             }
 
-            override fun onFailure(call: Call<BookSearchResponse>, t: Throwable) {
-                t.printStackTrace()
-                Toast.makeText(this@SearchBookActivity, "검색에 실패했습니다.", Toast.LENGTH_SHORT).show()
+            if (searchResponse.isSuccessful) {
+                val books = searchResponse.body()?.item ?: emptyList()
+
+                // 병렬로 각 책의 상세 정보 가져오기
+                val booksWithDetails = books.map { book ->
+                    async(Dispatchers.IO) {
+                        val detailResponse = api.getBookDetails(apiKey, book.isbn13).execute()
+                        val totalPage = detailResponse.body()?.item?.firstOrNull()?.subInfo?.itemPage ?: 0
+                        book.copy(totalPage = totalPage)
+                    }
+                }.awaitAll()
+
+                adapter.updateBooks(booksWithDetails)
+            } else {
+                Toast.makeText(this@SearchBookActivity, "검색 결과를 불러올 수 없습니다.", Toast.LENGTH_SHORT).show()
             }
-        })
+        } catch (e: Exception) {
+            Toast.makeText(this@SearchBookActivity, "검색 중 오류 발생: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
     }
 
-    // Retrofit API 인터페이스
+
     interface AladinAPI {
         @GET("ItemSearch.aspx")
         fun searchBooks(
@@ -113,17 +129,38 @@ class SearchBookActivity : AppCompatActivity() {
             @Query("output") output: String = "js",
             @Query("Version") version: Int = 20131101
         ): Call<BookSearchResponse>
+
+        @GET("ItemLookup.aspx")
+        fun getBookDetails(
+            @Query("ttbkey") apiKey: String,
+            @Query("ItemId") itemId: String,
+            @Query("ItemIdType") itemIdType: String = "ISBN13",
+            @Query("output") output: String = "js",
+            @Query("Version") version: Int = 20131101
+        ): Call<BookDetailResponse>
     }
 
     //데이터 모델
     data class BookSearchResponse(
         val item: List<Book>
     )
+
     data class Book(
         val title: String,
         val author: String,
         val publisher: String,
-        val cover: String //이미지 URL
+        val cover: String, // 이미지 URL
+        val isbn13: String, // ISBN-13 추가
+        val totalPage: Int = 0 // 전체 페이지 수
+    )
+    data class BookDetailResponse(
+        val item: List<BookDetail>
+    )
+    data class BookDetail(
+        val subInfo: SubInfo
+    )
+    data class SubInfo(
+        val itemPage: Int // 페이지 수
     )
 
     //리사이클러뷰 어댑터
@@ -164,4 +201,5 @@ class SearchBookActivity : AppCompatActivity() {
             }
         }
     }
+
 }
