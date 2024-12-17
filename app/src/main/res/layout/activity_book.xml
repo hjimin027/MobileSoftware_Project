@@ -62,7 +62,7 @@
             android:textStyle="bold"/>
 
         <ProgressBar
-            android:id="@+id/progressBar1"
+            android:id="@+id/goal_progressBar"
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="130dp"
             android:layout_height="wrap_content"
@@ -71,7 +71,7 @@
             />
 
         <TextView
-            android:id="@+id/progress_text1"
+            android:id="@+id/goal_progressText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="13sp"
@@ -96,23 +96,37 @@
             android:layout_height="wrap_content"
             android:text="현재 진행도"
             android:textSize="15sp"
+            android:layout_gravity="center_vertical"
             android:textStyle="bold" />
 
         <ProgressBar
-            android:id="@+id/progressBar2"
+            android:id="@+id/current_progressBar"
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="130dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginLeft="30dp" />
 
+
+        <EditText
+            android:id="@+id/current_progressText"
+            android:layout_width="wrap_content"
+            android:layout_height="35dp"
+            android:layout_marginLeft="30dp"
+            android:textSize="13sp"
+            android:maxLines="1"
+            android:maxLength="4"
+            android:hint="000"
+            android:layout_gravity="center_vertical"
+            />
+
         <TextView
-            android:id="@+id/progress_text2"
+            android:id="@+id/current_progressTextTotal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="30dp"
-            android:text="1000/1100쪽"
+            android:text="/1100쪽"
             android:textSize="13sp"
+            android:layout_gravity="center_vertical"
             android:textStyle="bold" />
 
     </LinearLayout>

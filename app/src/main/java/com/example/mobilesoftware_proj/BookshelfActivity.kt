@@ -16,12 +16,15 @@ data class Book(
     val id: String = "",
     val title: String = "",
     val cover: String = "",
+    val current_page: Int = 0,
+    val total_page: Int = 10
 )
 
 class BookAdapter(private val bookList: List<Book>) : RecyclerView.Adapter<BookAdapter.BookViewHolder>() {
     class BookViewHolder(itemView: android.view.View) : RecyclerView.ViewHolder(itemView) {
         val title: android.widget.TextView = itemView.findViewById(R.id.book_title)
         val coverImg: android.widget.ImageView = itemView.findViewById(R.id.bookshelf_image)
+        val bookshelfProgress: android.widget.ProgressBar = itemView.findViewById(R.id.bookshelf_progress)
     }
 
     override fun onCreateViewHolder(parent: android.view.ViewGroup, viewType: Int): BookViewHolder {
@@ -36,6 +39,7 @@ class BookAdapter(private val bookList: List<Book>) : RecyclerView.Adapter<BookA
         Glide.with(holder.itemView.context)
             .load(book.cover)
             .into(holder.coverImg)
+        holder.bookshelfProgress.progress = (book.current_page.toFloat() / book.total_page.toFloat() * 100).toInt()
         holder.itemView.setOnClickListener{
             val intent = android.content.Intent(holder.itemView.context, BookActivity::class.java)
             intent.putExtra("bookId", book.id)
