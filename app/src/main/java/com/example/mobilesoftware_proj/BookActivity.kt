@@ -206,7 +206,7 @@ class BookActivity : AppCompatActivity() {
                     val totalPage = document.getLong("total_page")?.toInt() ?: 0
                     val currentPage = document.getLong("current_page")?.toInt() ?: 0
 
-                    binding.currentProgressText.text = "$currentPage / $totalPage 쪽"
+                    binding.currentProgressText.text = "${currentPage} / ${totalPage} 쪽"
                     binding.currentProgressBar.progress =
                         if (totalPage > 0) (currentPage.toFloat() / totalPage * 100).toInt() else 0
 
@@ -226,7 +226,7 @@ class BookActivity : AppCompatActivity() {
                                 val goalProgress = bookDoc.getLong("pages")?.toInt() ?: 0
 
                                 // 목표 진행도 업데이트
-                                binding.goalProgressText.text = "$goalProgress / $totalPage 쪽"
+                                binding.goalProgressText.text = "${goalProgress} / ${totalPage} 쪽"
                                 binding.goalProgressBar.progress =
                                     if (totalPage > 0) (goalProgress.toFloat() / totalPage * 100).toInt() else 0
                             } else {
