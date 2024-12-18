@@ -17,7 +17,8 @@ data class Book(
     val title: String = "",
     val cover: String = "",
     val current_page: Int = 0,
-    val total_page: Int = 10
+    val total_page: Int = 10,
+    val status: String = "NOTREAD"
 )
 
 class BookAdapter(private val bookList: List<Book>) : RecyclerView.Adapter<BookAdapter.BookViewHolder>() {
@@ -40,6 +41,13 @@ class BookAdapter(private val bookList: List<Book>) : RecyclerView.Adapter<BookA
             .load(book.cover)
             .into(holder.coverImg)
         holder.bookshelfProgress.progress = (book.current_page.toFloat() / book.total_page.toFloat() * 100).toInt()
+        if (book.status == "READ") {
+            holder.itemView.isEnabled = false
+            holder.itemView.alpha = 0.5f
+        } else {
+            holder.itemView.isEnabled = true
+            holder.itemView.alpha = 1.0f
+        }
         holder.itemView.setOnClickListener{
             val intent = android.content.Intent(holder.itemView.context, BookActivity::class.java)
             intent.putExtra("bookId", book.id)
