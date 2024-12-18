@@ -97,6 +97,7 @@ class BookActivity : AppCompatActivity() {
                 .addOnSuccessListener { document ->
                     if (document.exists()) {
                         val totalPage = document.getLong("total_page")?.toInt() ?: 0
+                        val title = document.getString("title") ?: ""
                         if (totalPage > 0) {
                             // 목표 분량 계산
                             val goalDay = totalPage / diff
@@ -189,6 +190,7 @@ class BookActivity : AppCompatActivity() {
                     val cover = document.getString("cover")
 
                     binding.bookTitle.text = title
+
                     Glide.with(this)
                         .load(cover)
                         .into(binding.bookImage)
@@ -201,8 +203,41 @@ class BookActivity : AppCompatActivity() {
                         binding.endDate.text = endDate
                     }
 
-                    val goalPage = document.getLong("current_page")
-                    val currentPage = document.getLong("current_page")
+                    val totalPage = document.getLong("total_page")?.toInt() ?: 0
+                    val currentPage = document.getLong("current_page")?.toInt() ?: 0
+
+                    binding.currentProgressText.text = "$currentPage / $totalPage 쪽"
+                    binding.currentProgressBar.progress =
+                        if (totalPage > 0) (currentPage.toFloat() / totalPage * 100).toInt() else 0
+
+                    // 목표 진행도 계산을 위해 현재 날짜 데이터 가져오기
+                    val dateFormat = SimpleDateFormat("yyyy.MM.dd", Locale.getDefault())
+                    val today = dateFormat.format(Calendar.getInstance().time)
+
+                    db.collection("user")
+                        .document(userId)
+                        .collection("reading_schedule")
+                        .document(today)
+                        .collection("books")
+                        .document(bookId)
+                        .get()
+                        .addOnSuccessListener { bookDoc ->
+                            if (bookDoc.exists()) {
+                                val goalProgress = bookDoc.getLong("pages")?.toInt() ?: 0
+
+                                // 목표 진행도 업데이트
+                                binding.goalProgressText.text = "$goalProgress / $totalPage 쪽"
+                                binding.goalProgressBar.progress =
+                                    if (totalPage > 0) (goalProgress.toFloat() / totalPage * 100).toInt() else 0
+                            } else {
+                                Log.e("BookActivity", "No such document in reading_schedule")
+                            }
+                        }
+                        .addOnFailureListener { exception ->
+                            Log.e("BookActivity", "Failed to fetch reading schedule data", exception)
+                        }
+
+                    /*val goalPage = document.getLong("current_page")
                     // TODO: goalPage의 document.getLong("goal_page")로 바꾸기!!goal page 필요
                     val totalPage = document.getLong("total_page")
                     binding.goalProgressText.text = "${goalPage}/${totalPage} 쪽"
@@ -211,7 +246,7 @@ class BookActivity : AppCompatActivity() {
                     binding.goalProgressBar.progress =
                         ((document.getLong("current_page")?.toFloat() ?: 0f) / (document.getLong("total_page")?.toFloat() ?: 1f) * 100).toInt()
                     binding.currentProgressBar.progress =
-                        ((document.getLong("current_page")?.toFloat() ?: 0f) / (document.getLong("total_page")?.toFloat() ?: 1f) * 100).toInt()
+                        ((document.getLong("current_page")?.toFloat() ?: 0f) / (document.getLong("total_page")?.toFloat() ?: 1f) * 100).toInt()*/
                 } else{
                     Log.e("BookActivity", "No such document")
                 }
