@@ -149,7 +149,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
-                android:text="2024.11.14"
+                android:text=""
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -184,7 +184,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
-                android:text="2024.11.14"
+                android:text=""
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -192,16 +192,5 @@
 
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/progress_calculate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="30dp"
-        android:text="종료일까지 10쪽/일 하면 목표 달성 가능!"
-        android:textSize="15sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/progress_layout3" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
