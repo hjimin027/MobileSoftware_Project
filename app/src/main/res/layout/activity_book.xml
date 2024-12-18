@@ -107,24 +107,12 @@
             android:layout_gravity="center"
             android:layout_marginLeft="30dp" />
 
-
-        <EditText
+        <TextView
             android:id="@+id/current_progressText"
             android:layout_width="wrap_content"
-            android:layout_height="35dp"
-            android:layout_marginLeft="30dp"
-            android:textSize="13sp"
-            android:maxLines="1"
-            android:maxLength="4"
-            android:hint="000"
-            android:layout_gravity="center_vertical"
-            />
-
-        <TextView
-            android:id="@+id/current_progressTextTotal"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="/1100쪽"
+            android:text="0000/1100쪽"
+            android:layout_marginLeft="30dp"
             android:textSize="13sp"
             android:layout_gravity="center_vertical"
             android:textStyle="bold" />

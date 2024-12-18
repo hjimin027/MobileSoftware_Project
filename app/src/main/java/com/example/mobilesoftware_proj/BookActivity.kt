@@ -171,14 +171,14 @@ class BookActivity : AppCompatActivity() {
                     loadDatesFromDatabase(userId, bookId)
 
                     val goalPage = document.getLong("current_page")
+                    val currentPage = document.getLong("current_page")
                     // TODO: goalPage의 document.getLong("goal_page")로 바꾸기!!goal page 필요
                     val totalPage = document.getLong("total_page")
                     binding.goalProgressText.text = "${goalPage}/${totalPage} 쪽"
-                    binding.currentProgressText.hint = document.getLong("current_page").toString()
-                    binding.currentProgressTextTotal.text = "/${totalPage} 쪽"
+                    binding.currentProgressText.text = "${currentPage}/${totalPage} 쪽"
+                    // TODO: 아래 goalProgressBar의 current_page -> goal_page
                     binding.goalProgressBar.progress =
                         ((document.getLong("current_page")?.toFloat() ?: 0f) / (document.getLong("total_page")?.toFloat() ?: 1f) * 100).toInt()
-
                     binding.currentProgressBar.progress =
                         ((document.getLong("current_page")?.toFloat() ?: 0f) / (document.getLong("total_page")?.toFloat() ?: 1f) * 100).toInt()
                 } else{
