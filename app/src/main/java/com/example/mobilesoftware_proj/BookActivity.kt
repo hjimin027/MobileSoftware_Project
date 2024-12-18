@@ -27,7 +27,6 @@ class BookActivity : AppCompatActivity() {
     val binding by lazy { ActivityBookBinding.inflate(layoutInflater) }
     private val db = FirebaseFirestore.getInstance()
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
@@ -58,8 +57,6 @@ class BookActivity : AppCompatActivity() {
                     calendar.timeInMillis = selection?.second ?: 0
                     val endDate = SimpleDateFormat("yyyy.MM.dd", Locale.getDefault()).format(calendar.time)
                     binding.endDate.text = endDate
-
-
 
                     // 선택된 날짜 저장 로직 추가
                     val bookId = intent.getStringExtra("bookId")
@@ -120,12 +117,34 @@ class BookActivity : AppCompatActivity() {
                                 .document(bookId)
                                 .update(dateData)
                                 .addOnSuccessListener {
-                                    Toast.makeText(this, "날짜와 목표 분량이 저장되었습니다.", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(this, "날짜와 목표 분량이 저장되었습니다.", Toast.LENGTH_SHORT)
+                                        .show()
                                 }
                                 .addOnFailureListener { exception ->
                                     Log.e("BookActivity", "목표 분량 저장 실패", exception)
-                                    Toast.makeText(this, "저장 중 오류가 발생했습니다.", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(this, "저장 중 오류가 발생했습니다.", Toast.LENGTH_SHORT)
+                                        .show()
                                 }
+
+                            val calendar = Calendar.getInstance()
+                            calendar.time = start
+                            var accumulatedPages = 0
+                            for (i in 0 until diff) {
+                                val date = dateFormat.format(calendar.time)
+                                accumulatedPages += if (i == diff - 1) goalLast else goalDay
+                                val bookData = mapOf(
+                                    "title" to title,
+                                    "pages" to accumulatedPages
+                                )
+                                db.collection("user")
+                                    .document(userId)
+                                    .collection("reading_schedule")
+                                    .document(date)
+                                    .collection("books")
+                                    .document(bookId)
+                                    .set(bookData, SetOptions.merge())
+                                calendar.add(Calendar.DATE, 1)
+                            }
                         } else {
                             Toast.makeText(this, "총 페이지 수를 찾을 수 없습니다.", Toast.LENGTH_SHORT).show()
                         }
