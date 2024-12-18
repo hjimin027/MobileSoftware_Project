@@ -83,54 +83,60 @@ class BookActivity : AppCompatActivity() {
 
     private fun saveDateToDatabase(bookId: String, startDate: String, endDate: String) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        // Firestore에 저장할 데이터
-        val dateData = hashMapOf(
-            "bookId" to bookId,
-            "start_date" to startDate,
-            "end_date" to endDate
-        )
-        // Firestore에서 기존 문서를 찾고 업데이트
-        db.collection("user")
-            .document(userId)
-            .collection("calendar")
-            .whereEqualTo("bookId", bookId)
-            .get()
-            .addOnSuccessListener { querySnapshot ->
-                if (querySnapshot.isEmpty) {
-                    // 문서가 없다면 새로 추가
-                    db.collection("user")
-                        .document(userId)
-                        .collection("calendar")
-                        .add(dateData)
-                        .addOnSuccessListener {
-                            Toast.makeText(this, "날짜가 저장되었습니다.", Toast.LENGTH_SHORT).show()
+        // 시작 및 종료 날짜를 Date 객체로 변환
+        val dateFormat = SimpleDateFormat("yyyy.MM.dd", Locale.getDefault())
+        val start = dateFormat.parse(startDate)
+        val end = dateFormat.parse(endDate)
+
+        if (start != null && end != null) {
+            // 날짜 차이를 계산
+            val diff = ((end.time - start.time) / (1000 * 60 * 60 * 24)).toInt() + 1
+
+            db.collection("user")
+                .document(userId)
+                .collection("user_books")
+                .document(bookId)
+                .get()
+                .addOnSuccessListener { document ->
+                    if (document.exists()) {
+                        val totalPage = document.getLong("total_page")?.toInt() ?: 0
+                        if (totalPage > 0) {
+                            // 목표 분량 계산
+                            val goalDay = totalPage / diff
+                            val goalLast = goalDay + (totalPage % diff)
+
+                            // Firestore에 저장할 데이터
+                            val dateData = mapOf(
+                                "start_date" to startDate,
+                                "end_date" to endDate,
+                                "goal_day" to goalDay,
+                                "goal_last" to goalLast
+                            )
+
+                            // Firestore 업데이트
+                            db.collection("user")
+                                .document(userId)
+                                .collection("user_books")
+                                .document(bookId)
+                                .update(dateData)
+                                .addOnSuccessListener {
+                                    Toast.makeText(this, "날짜와 목표 분량이 저장되었습니다.", Toast.LENGTH_SHORT).show()
+                                }
+                                .addOnFailureListener { exception ->
+                                    Log.e("BookActivity", "목표 분량 저장 실패", exception)
+                                    Toast.makeText(this, "저장 중 오류가 발생했습니다.", Toast.LENGTH_SHORT).show()
+                                }
+                        } else {
+                            Toast.makeText(this, "총 페이지 수를 찾을 수 없습니다.", Toast.LENGTH_SHORT).show()
                         }
-                        .addOnFailureListener { exception ->
-                            Log.e("BookActivity", "날짜 저장 실패", exception)
-                            Toast.makeText(this, "날짜 저장 중 오류가 발생했습니다.", Toast.LENGTH_SHORT).show()
-                        }
-                } else {
-                    // 문서가 존재하면 첫 번째 문서를 업데이트
-                    val existingDocument = querySnapshot.documents[0]
-                    val documentId = existingDocument.id
-                    db.collection("user")
-                        .document(userId)
-                        .collection("calendar")
-                        .document(documentId)
-                        .set(dateData) // 기존 문서를 덮어씀
-                        .addOnSuccessListener {
-                            Toast.makeText(this, "날짜가 업데이트되었습니다.", Toast.LENGTH_SHORT).show()
-                        }
-                        .addOnFailureListener { exception ->
-                            Log.e("BookActivity", "날짜 업데이트 실패", exception)
-                            Toast.makeText(this, "날짜 업데이트 중 오류가 발생했습니다.", Toast.LENGTH_SHORT).show()
-                        }
+                    }
                 }
-            }
-            .addOnFailureListener { exception ->
-                Log.e("BookActivity", "날짜 저장 실패", exception)
-                Toast.makeText(this, "날짜 저장 중 오류가 발생했습니다.", Toast.LENGTH_SHORT).show()
-            }
+                .addOnFailureListener { exception ->
+                    Log.e("BookActivity", "Firestore 문서 조회 실패", exception)
+                }
+        } else {
+            Toast.makeText(this, "유효하지 않은 날짜 형식입니다.", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun updateCurrentPageInFirestore(newPage: Int) {
@@ -168,7 +174,13 @@ class BookActivity : AppCompatActivity() {
                         .load(cover)
                         .into(binding.bookImage)
 
-                    loadDatesFromDatabase(userId, bookId)
+                    val startDate = document.getString("start_date")
+                    val endDate = document.getString("end_date")
+
+                    if (startDate != null && endDate != null) {
+                        binding.startDate.text = startDate
+                        binding.endDate.text = endDate
+                    }
 
                     val goalPage = document.getLong("current_page")
                     val currentPage = document.getLong("current_page")
@@ -189,27 +201,6 @@ class BookActivity : AppCompatActivity() {
                 Log.e("BookActivity", "get failed with ", exception)
             }
     }
-    private fun loadDatesFromDatabase(userId: String, bookId: String) {
-        db.collection("user")
-            .document(userId)
-            .collection("calendar")
-            .whereEqualTo("bookId", bookId)
-            .get()
-            .addOnSuccessListener { querySnapshot ->
-                if (!querySnapshot.isEmpty) {
-                    val document = querySnapshot.documents[0]
-                    val startDate = document.getString("start_date")
-                    val endDate = document.getString("end_date")
-                    // 날짜 정보가 있으면 화면에 표시
-                    if (startDate != null && endDate != null) {
-                        binding.startDate.text = startDate
-                        binding.endDate.text = endDate
-                    }
-                }
-            }
-            .addOnFailureListener { exception ->
-                Log.e("BookActivity", "Error loading dates", exception)
-            }
-    }
+
 
 }
