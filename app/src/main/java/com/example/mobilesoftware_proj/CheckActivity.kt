@@ -134,7 +134,7 @@ class CheckActivity : AppCompatActivity() {
             holder.todayPage.hint = book.goalPages.toString()
             holder.checkBox.isChecked = book.checked
 
-            if (userId != null){
+            if (userId != null) {
                 db.collection("user")
                     .document(userId)
                     .collection("user_books")
@@ -142,9 +142,13 @@ class CheckActivity : AppCompatActivity() {
                     .get()
                     .addOnSuccessListener { documents ->
                         for (document in documents) {
-                            val currentPage = document.get("current_page") as Long
-                            book.previousPage = currentPage.toInt()
+                            val currentPage = document.getLong("current_page")?.toInt() ?: 0
+                            book.previousPage = currentPage
+                            holder.todayPage.setText(currentPage.toString()) // 불러온 current_page 값을 EditText에 설정
                         }
+                    }
+                    .addOnFailureListener { exception ->
+                        Log.e("CheckActivity", "current_page 불러오기에 실패했습니다: $exception")
                     }
             }
 
@@ -155,7 +159,7 @@ class CheckActivity : AppCompatActivity() {
                         holder.todayPage.setText(book.goalPages.toString())
                         saveCurrentPage(book.title, book.goalPages, book.checked)
                     } else {
-                        holder.todayPage.setText("")
+                        holder.todayPage.setText(book.previousPage.toString())
                         saveCurrentPage(book.title, book.previousPage, book.checked)
                     }
                 } catch (e: Exception) {
@@ -163,10 +167,9 @@ class CheckActivity : AppCompatActivity() {
                 }
             }
 
-
-            holder.todayPage.addTextChangedListener(object : TextWatcher{
+            holder.todayPage.addTextChangedListener(object : TextWatcher {
                 override fun afterTextChanged(s: Editable?) {
-                    try{
+                    try {
                         val currentPage = s.toString().toIntOrNull() ?: 0
                         saveCurrentPage(book.title, currentPage, holder.checkBox.isChecked)
                     } catch (e: Exception) {
@@ -174,8 +177,8 @@ class CheckActivity : AppCompatActivity() {
                     }
                 }
 
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) { }
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) { }
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             })
         }
 
