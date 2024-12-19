@@ -59,7 +59,7 @@ class MypageActivity : AppCompatActivity() {
 
         binding.info.setOnClickListener {
             startActivity(Intent(this, InfoActivity::class.java))
-            finish()
+            //finish()
         }
 
         binding.logout.setOnClickListener {

@@ -63,12 +63,12 @@ class myfriendActivity : AppCompatActivity() {
 
         binding.floatingActionButton.setOnClickListener {
             startActivity(Intent(this, SearchFriendActivity::class.java))
-            finish()
+            //finish()
         }
 
         binding.friendReq.setOnClickListener {
             startActivity(Intent(this, FriendReqActivity::class.java))
-            finish()
+            //finish()
         }
     }
 

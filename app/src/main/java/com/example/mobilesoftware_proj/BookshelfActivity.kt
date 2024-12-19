@@ -103,7 +103,7 @@ class BookshelfActivity : AppCompatActivity() {
     private fun setupFloatingActionButton() {
         binding.floatingActionButton.setOnClickListener {
             startActivity(Intent(this, SearchBookActivity::class.java))
-            finish()
+            //finish()
         }
     }
 
