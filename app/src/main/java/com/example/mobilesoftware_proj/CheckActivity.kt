@@ -101,6 +101,7 @@ class CheckActivity : AppCompatActivity() {
             }
             .addOnFailureListener { exception ->
                 Toast.makeText(this, "책을 불러오는데 실패했습니다.", Toast.LENGTH_SHORT).show()
+                Log.e("CheckActivity", exception.toString())
             }
     }
 
@@ -151,11 +152,9 @@ class CheckActivity : AppCompatActivity() {
                 try {
                     book.checked = isChecked
                     if (isChecked) {
-                        Toast.makeText(this@CheckActivity, "체크되었습니다. ${book.checked}", Toast.LENGTH_SHORT).show()
                         holder.todayPage.setText(book.goalPages.toString())
                         saveCurrentPage(book.title, book.goalPages, book.checked)
                     } else {
-                        Toast.makeText(this@CheckActivity, "체크. ${book.checked}", Toast.LENGTH_SHORT).show()
                         holder.todayPage.setText("")
                         saveCurrentPage(book.title, book.previousPage, book.checked)
                     }
@@ -165,16 +164,19 @@ class CheckActivity : AppCompatActivity() {
             }
 
 
-            holder.todayPage.setOnFocusChangeListener{ _, hasFocus ->
-                if (!hasFocus){
+            holder.todayPage.addTextChangedListener(object : TextWatcher{
+                override fun afterTextChanged(s: Editable?) {
                     try{
-                        val currentPage = holder.todayPage.text.toString().toIntOrNull() ?: 0
+                        val currentPage = s.toString().toIntOrNull() ?: 0
                         saveCurrentPage(book.title, currentPage, holder.checkBox.isChecked)
                     } catch (e: Exception) {
                         Log.e("CheckActivity", e.toString())
                     }
                 }
-            }
+
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) { }
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) { }
+            })
         }
 
         private fun saveCurrentPage(bookTitle: String, currentPage: Int, isChecked: Boolean) {
@@ -194,10 +196,10 @@ class CheckActivity : AppCompatActivity() {
                             .document(bookId)
                             .update("current_page", currentPage)
                             .addOnSuccessListener {
-                                Toast.makeText(this@CheckActivity, "저장되었습니다.", Toast.LENGTH_SHORT).show()
+                                Log.i("CheckActivity", "current_page 저장되었습니다.")
                             }
                             .addOnFailureListener {
-                                Toast.makeText(this@CheckActivity, "저장에 실패했습니다.", Toast.LENGTH_SHORT).show()
+                                Log.e("CheckActivity", "current_page 저장에 실패했습니다.")
                             }
                     }
                 }
@@ -223,10 +225,10 @@ class CheckActivity : AppCompatActivity() {
                             .document(bookId)
                             .update("checked", isChecked)
                             .addOnSuccessListener {
-                                Toast.makeText(this@CheckActivity, "저장되었습니다.", Toast.LENGTH_SHORT).show()
+                                Log.i("CheckActivity", "checked 저장되었습니다.")
                             }
                             .addOnFailureListener {
-                                Toast.makeText(this@CheckActivity, "저장에 실패했습니다.", Toast.LENGTH_SHORT).show()
+                                Log.e("CheckActivity", "checked 저장에 실패했습니다.")
                             }
                     }
                 }
