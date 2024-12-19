@@ -14,6 +14,11 @@ class MypageActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     val binding by lazy { ActivityMypageBinding.inflate(layoutInflater) }
 
+    @Suppress("MissingSuperCall")
+    override fun onBackPressed() {
+        finishAffinity() // 스택의 모든 액티비티 종료
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)

@@ -63,6 +63,11 @@ class BookshelfActivity : AppCompatActivity() {
     private val auth by lazy { FirebaseAuth.getInstance() }
     private val db by lazy { FirebaseFirestore.getInstance() }
 
+    @Suppress("MissingSuperCall")
+    override fun onBackPressed() {
+        finishAffinity() // 스택의 모든 액티비티 종료
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)

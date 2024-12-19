@@ -32,6 +32,11 @@ class CheckActivity : AppCompatActivity() {
     private val db = FirebaseFirestore.getInstance()
     private val userId = FirebaseAuth.getInstance().currentUser?.uid
 
+    @Suppress("MissingSuperCall")
+    override fun onBackPressed() {
+        finishAffinity() // 스택의 모든 액티비티 종료
+    }
+
     @SuppressLint("DefaultLocale")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
