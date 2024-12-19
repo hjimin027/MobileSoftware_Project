@@ -112,6 +112,29 @@ class BookActivity : AppCompatActivity() {
                                 .document(bookId)
                                 .update(dateData)
                                 .addOnSuccessListener {
+                                    val calendar = Calendar.getInstance()
+                                    calendar.time = start
+                                    var accumulatedPages = 0
+                                    for (i in 0 until diff) {
+                                        val date = dateFormat.format(calendar.time)
+                                        accumulatedPages += if (i == diff - 1) goalLast else goalDay
+                                        val bookData = mapOf(
+                                            "title" to title,
+                                            "pages" to accumulatedPages,
+                                            "checked" to false
+                                        )
+                                        db.collection("user")
+                                            .document(userId)
+                                            .collection("reading_schedule")
+                                            .document(date)
+                                            .collection("books")
+                                            .document(bookId)
+                                            .set(bookData, SetOptions.merge())
+                                        calendar.add(Calendar.DATE, 1)
+                                    }
+
+                                    loadBookDetails(bookId)
+
                                     Toast.makeText(this, "날짜와 목표 분량이 저장되었습니다.", Toast.LENGTH_SHORT)
                                         .show()
                                 }
@@ -121,26 +144,7 @@ class BookActivity : AppCompatActivity() {
                                         .show()
                                 }
 
-                            val calendar = Calendar.getInstance()
-                            calendar.time = start
-                            var accumulatedPages = 0
-                            for (i in 0 until diff) {
-                                val date = dateFormat.format(calendar.time)
-                                accumulatedPages += if (i == diff - 1) goalLast else goalDay
-                                val bookData = mapOf(
-                                    "title" to title,
-                                    "pages" to accumulatedPages,
-                                    "checked" to false
-                                )
-                                db.collection("user")
-                                    .document(userId)
-                                    .collection("reading_schedule")
-                                    .document(date)
-                                    .collection("books")
-                                    .document(bookId)
-                                    .set(bookData, SetOptions.merge())
-                                calendar.add(Calendar.DATE, 1)
-                            }
+
                         } else {
                             Toast.makeText(this, "총 페이지 수를 찾을 수 없습니다.", Toast.LENGTH_SHORT).show()
                         }
