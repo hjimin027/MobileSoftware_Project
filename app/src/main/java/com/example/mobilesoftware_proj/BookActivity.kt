@@ -31,12 +31,6 @@ class BookActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        binding.currentProgressText.addTextChangedListener {
-            if (it.toString().toIntOrNull() != null){
-                updateCurrentPageInFirestore(it.toString().toInt())
-            }
-        }
-
         binding.calendar.setOnClickListener{
             val dateRangePicker =
                 MaterialDatePicker.Builder.dateRangePicker()
@@ -135,7 +129,8 @@ class BookActivity : AppCompatActivity() {
                                 accumulatedPages += if (i == diff - 1) goalLast else goalDay
                                 val bookData = mapOf(
                                     "title" to title,
-                                    "pages" to accumulatedPages
+                                    "pages" to accumulatedPages,
+                                    "checked" to false
                                 )
                                 db.collection("user")
                                     .document(userId)
@@ -157,23 +152,6 @@ class BookActivity : AppCompatActivity() {
         } else {
             Toast.makeText(this, "유효하지 않은 날짜 형식입니다.", Toast.LENGTH_SHORT).show()
         }
-    }
-
-    private fun updateCurrentPageInFirestore(newPage: Int) {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid ?:return
-        val bookId = intent.getStringExtra("bookId") ?: return
-
-        db.collection("user")
-            .document(userId)
-            .collection("user_books")
-            .document(bookId)
-            .update("current_page", newPage)
-            .addOnSuccessListener {
-                Log.d("BookActivity", "DocumentSnapshot successfully updated!")
-            }
-            .addOnFailureListener { e ->
-                Log.e("BookActivity", "Error updating document", e)
-            }
     }
 
     private fun loadBookDetails(bookId: String) {

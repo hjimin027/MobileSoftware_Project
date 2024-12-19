@@ -2,6 +2,7 @@ package com.example.mobilesoftware_proj
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.icu.text.SimpleDateFormat
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -24,6 +25,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.Calendar
+import java.util.Locale
 
 class CheckActivity : AppCompatActivity() {
     private val binding by lazy { ActivityCheckBinding.inflate(layoutInflater) }
@@ -91,7 +93,8 @@ class CheckActivity : AppCompatActivity() {
                 for (document in documents) {
                     val title = document.getString("title") ?: ""
                     val pages = document.getLong("pages")?.toInt() ?: 0
-                    val book = Book(title, pages)
+                    val checked = document.getBoolean("checked") ?: false
+                    val book = Book(title, pages, checked = checked)
                     books.add(book)
                 }
                 binding.recyclerview.adapter = BookAdapter(books)
@@ -104,7 +107,8 @@ class CheckActivity : AppCompatActivity() {
     data class Book(
         val title: String = "",
         val goalPages: Int = 0,
-        var previousPage: Int = 0
+        var previousPage: Int = 0,
+        var checked: Boolean = false
     )
 
     inner class BookAdapter(private val books: List<Book>) : RecyclerView.Adapter<BookAdapter.BookViewHolder>(){
@@ -127,6 +131,7 @@ class CheckActivity : AppCompatActivity() {
             holder.title.text = book.title
             holder.goalPages.text = "/${book.goalPages}"
             holder.todayPage.hint = book.goalPages.toString()
+            holder.checkBox.isChecked = book.checked
 
             if (userId != null){
                 db.collection("user")
@@ -144,12 +149,15 @@ class CheckActivity : AppCompatActivity() {
 
             holder.checkBox.setOnCheckedChangeListener { _, isChecked ->
                 try {
+                    book.checked = isChecked
                     if (isChecked) {
+                        Toast.makeText(this@CheckActivity, "체크되었습니다. ${book.checked}", Toast.LENGTH_SHORT).show()
                         holder.todayPage.setText(book.goalPages.toString())
-                        saveCurrentPage(book.title, book.goalPages)
+                        saveCurrentPage(book.title, book.goalPages, book.checked)
                     } else {
+                        Toast.makeText(this@CheckActivity, "체크. ${book.checked}", Toast.LENGTH_SHORT).show()
                         holder.todayPage.setText("")
-                        saveCurrentPage(book.title, book.previousPage)
+                        saveCurrentPage(book.title, book.previousPage, book.checked)
                     }
                 } catch (e: Exception) {
                     Log.e("CheckActivity", e.toString())
@@ -157,22 +165,19 @@ class CheckActivity : AppCompatActivity() {
             }
 
 
-            holder.todayPage.addTextChangedListener(object : TextWatcher{
-                override fun afterTextChanged(s: Editable?) {
+            holder.todayPage.setOnFocusChangeListener{ _, hasFocus ->
+                if (!hasFocus){
                     try{
-                        val currentPage = s.toString().toIntOrNull() ?: 0
-                        saveCurrentPage(book.title, currentPage)
+                        val currentPage = holder.todayPage.text.toString().toIntOrNull() ?: 0
+                        saveCurrentPage(book.title, currentPage, holder.checkBox.isChecked)
                     } catch (e: Exception) {
                         Log.e("CheckActivity", e.toString())
                     }
                 }
-
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) { }
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) { }
-            })
+            }
         }
 
-        private fun saveCurrentPage(bookTitle: String, currentPage: Int) {
+        private fun saveCurrentPage(bookTitle: String, currentPage: Int, isChecked: Boolean) {
             if (userId == null) return
 
             db.collection("user")
@@ -188,6 +193,35 @@ class CheckActivity : AppCompatActivity() {
                             .collection("user_books")
                             .document(bookId)
                             .update("current_page", currentPage)
+                            .addOnSuccessListener {
+                                Toast.makeText(this@CheckActivity, "저장되었습니다.", Toast.LENGTH_SHORT).show()
+                            }
+                            .addOnFailureListener {
+                                Toast.makeText(this@CheckActivity, "저장에 실패했습니다.", Toast.LENGTH_SHORT).show()
+                            }
+                    }
+                }
+
+            val dateFormat = SimpleDateFormat("yyyy.MM.dd", Locale.getDefault())
+            val currentDate = dateFormat.format(binding.calendarView.date)
+
+            db.collection("user")
+                .document(userId)
+                .collection("reading_schedule")
+                .document(currentDate)
+                .collection("books")
+                .whereEqualTo("title", bookTitle)
+                .get()
+                .addOnSuccessListener { documents ->
+                    for (document in documents) {
+                        val bookId = document.id
+                        db.collection("user")
+                            .document(userId)
+                            .collection("reading_schedule")
+                            .document(currentDate)
+                            .collection("books")
+                            .document(bookId)
+                            .update("checked", isChecked)
                             .addOnSuccessListener {
                                 Toast.makeText(this@CheckActivity, "저장되었습니다.", Toast.LENGTH_SHORT).show()
                             }
