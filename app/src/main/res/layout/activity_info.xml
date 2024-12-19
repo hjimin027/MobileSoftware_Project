@@ -55,6 +55,8 @@
             android:id="@+id/info_name_edit"
             android:layout_width="260dp"
             android:maxLines="1"
+            android:maxLength="7"
+            android:singleLine="true"
             android:layout_height="48dp" />
 
         <Button
