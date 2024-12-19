@@ -190,21 +190,63 @@ class CheckActivity : AppCompatActivity() {
         private fun saveCurrentPage(bookTitle: String, currentPage: Int, isChecked: Boolean) {
             if (userId == null) return
 
-            db.collection("user")
+            val userBooksRef = db.collection("user")
                 .document(userId)
                 .collection("user_books")
+
+            // Update current_page and check status
+            userBooksRef
                 .whereEqualTo("title", bookTitle)
                 .get()
                 .addOnSuccessListener { documents ->
                     for (document in documents) {
                         val bookId = document.id
-                        db.collection("user")
-                            .document(userId)
-                            .collection("user_books")
+
+                        // Update current_page
+                        userBooksRef
                             .document(bookId)
                             .update("current_page", currentPage)
                             .addOnSuccessListener {
                                 Log.i("CheckActivity", "current_page 저장되었습니다.")
+
+                                // Check if current_page == total_page
+                                userBooksRef
+                                    .document(bookId)
+                                    .get()
+                                    .addOnSuccessListener { doc ->
+                                        val totalPage = doc.getLong("total_page")?.toInt() ?: 0
+                                        if (currentPage == totalPage) {
+                                            // Update status to "READ"
+                                            userBooksRef
+                                                .document(bookId)
+                                                .update("status", "READ")
+                                                .addOnSuccessListener {
+                                                    Log.i(
+                                                        "CheckActivity",
+                                                        "status가 'READ'로 변경되었습니다."
+                                                    )
+                                                }
+                                                .addOnFailureListener {
+                                                    Log.e("CheckActivity", "status 업데이트에 실패했습니다.")
+                                                }
+                                        } else{
+                                            userBooksRef
+                                                .document(bookId)
+                                                .update("status", "NOTREAD")
+                                                .addOnSuccessListener {
+                                                    Log.i(
+                                                        "CheckActivity",
+                                                        "status가 'NOTREAD'로 변경되었습니다."
+                                                    )
+                                                }
+                                                .addOnFailureListener {
+                                                    Log.e("CheckActivity", "status 업데이트에 실패했습니다.")
+                                                }
+                                        }
+                                    }
+                                    .addOnFailureListener {
+                                        Log.e("CheckActivity", "total_page 확인에 실패했습니다.")
+                                    }
                             }
                             .addOnFailureListener {
                                 Log.e("CheckActivity", "current_page 저장에 실패했습니다.")
@@ -212,6 +254,7 @@ class CheckActivity : AppCompatActivity() {
                     }
                 }
 
+            // Update checked in reading_schedule
             val dateFormat = SimpleDateFormat("yyyy.MM.dd", Locale.getDefault())
             val currentDate = dateFormat.format(binding.calendarView.date)
 

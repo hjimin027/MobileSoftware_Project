@@ -42,10 +42,10 @@ class BookAdapter(private val bookList: List<Book>) : RecyclerView.Adapter<BookA
             .into(holder.coverImg)
         holder.bookshelfProgress.progress = (book.current_page.toFloat() / book.total_page.toFloat() * 100).toInt()
         if (book.status == "READ") {
-            holder.itemView.isEnabled = false
+            //holder.itemView.isEnabled = false
             holder.itemView.alpha = 0.5f
         } else {
-            holder.itemView.isEnabled = true
+            //holder.itemView.isEnabled = true
             holder.itemView.alpha = 1.0f
         }
         holder.itemView.setOnClickListener{
