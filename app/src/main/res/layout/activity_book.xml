@@ -70,6 +70,7 @@
             android:layout_width="130dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:progressTint="@color/progressGoal"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/goal_progressText"
             app:layout_constraintStart_toEndOf="@+id/progress_title1"
@@ -115,11 +116,11 @@
             android:layout_width="130dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            app:layout_constraintTop_toTopOf="parent"
+            android:progressTint="@color/progressCurrent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@id/progress_title2"
             app:layout_constraintEnd_toStartOf="@id/current_progressText"
-            />
+            app:layout_constraintStart_toEndOf="@id/progress_title2"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/current_progressText"

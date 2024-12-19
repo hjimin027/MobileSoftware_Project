@@ -2,6 +2,11 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="gray">#777777</color>
 
     <color name="colorPrimary">#020715</color>
+
+    <color name="progressCurrent">#a2caa7</color>
+    <color name="progressGoal">#dfa4a6</color>
+    <color name="progressFriend">#7eabd9</color>
 </resources>

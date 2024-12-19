@@ -34,7 +34,6 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/colorPrimary"
             android:text="이메일"
             android:textSize="16dp" />
 
@@ -51,7 +50,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:backgroundTint="@color/colorPrimary"
             android:text="비밀번호"
             android:textSize="16dp" />
 
