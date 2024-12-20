@@ -15,6 +15,7 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -34,7 +35,18 @@ class CheckActivity : AppCompatActivity() {
 
     @Suppress("MissingSuperCall")
     override fun onBackPressed() {
-        finishAffinity() // 스택의 모든 액티비티 종료
+        AlertDialog.Builder(this)
+            .setTitle("앱 종료")
+            .setMessage("앱을 종료하시겠습니까?")
+            .setPositiveButton("예") { dialog, _ ->
+                // 앱 종료
+                finish()
+            }
+            .setNegativeButton("아니오") { dialog, _ ->
+                // 팝업 닫기
+                dialog.dismiss()
+            }
+            .show()
     }
 
     @SuppressLint("DefaultLocale")
