@@ -2,17 +2,21 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.MobileSoftware_Proj" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
-        <item name="android:background">@color/white</item>
+        <item name="android:windowBackground">@color/white</item>
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="android:color">@color/black</item>
-
         <item name="android:textColor">@color/black</item>
     </style>
 
-    <!--  플로팅 버튼 스타일  -->
-    <style name="Widget.FloatingActionButton" parent="Widget.Design.FloatingActionButton">
-        <item name="backgroundTint">@color/gray</item>
+    <style name="Widget.Design.BottomNavigationView" parent="Widget.Material3.BottomNavigationView">
+        <item name="itemTextColor">@color/nav_text_color</item>
+        <item name="backgroundColor">@color/white</item>
+        <item name="itemBackground">@color/white</item>
+        <item name="itemActiveIndicatorStyle">@style/Widget.Design.NavigationActiveIndicator</item>
+    </style>
+    <style name="Widget.Design.NavigationActiveIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:color">@color/colorPrimary</item>
+        <item name="android:layout_marginTop">5dp</item>
     </style>
 
     <style name="Theme.MobileSoftware_Proj" parent="Base.Theme.MobileSoftware_Proj" />

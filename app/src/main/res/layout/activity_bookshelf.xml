@@ -42,7 +42,8 @@
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/floatingActionButton"
-        style="@style/Widget.FloatingActionButton"
+        android:backgroundTint="@color/colorPrimary"
+        android:contentDescription="add book in bookshelf"
         app:tint="@color/white"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -59,7 +60,7 @@
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:background="#00000000"
+        style="@style/Widget.Design.BottomNavigationView"
         app:labelVisibilityMode="labeled"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

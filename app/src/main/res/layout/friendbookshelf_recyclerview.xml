@@ -42,7 +42,6 @@
                 android:layout_height="wrap_content"
                 android:text="진행도"
                 android:textSize="15sp"
-                android:textStyle="bold"
                 android:layout_marginLeft="15dp"/>
 
             <ProgressBar
