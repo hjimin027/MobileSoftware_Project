@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -19,7 +20,9 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 data class FriendBook(
     val title: String = "",
-    val cover: String = ""
+    val cover: String = "",
+    val current_page: Int = 0,
+    val total_page: Int = 10
 )
 
 class FriendBookAdapter(private val bookList: List<FriendBook>) : RecyclerView.Adapter<FriendBookAdapter.BookViewHolder>() {
@@ -27,11 +30,13 @@ class FriendBookAdapter(private val bookList: List<FriendBook>) : RecyclerView.A
     class BookViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val title: TextView = itemView.findViewById(R.id.book_title)
         val coverImg: ImageView = itemView.findViewById(R.id.bookshelf_image)
+        val progress: ProgressBar = itemView.findViewById(R.id.bookshelf_progress)
+        val progressText: TextView = itemView.findViewById(R.id.progress)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BookViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.bookshelf_recyclerview, parent, false)
+            .inflate(R.layout.friendbookshelf_recyclerview, parent, false)
         return BookViewHolder(view)
     }
 
@@ -41,6 +46,15 @@ class FriendBookAdapter(private val bookList: List<FriendBook>) : RecyclerView.A
         Glide.with(holder.itemView.context)
             .load(book.cover)
             .into(holder.coverImg)
+
+        // 진행도 계산
+        val progressPercentage = if (book.total_page > 0) {
+            (book.current_page.toFloat() / book.total_page * 100).toInt()
+        } else {
+            0
+        }
+
+        holder.progress.progress = progressPercentage
     }
 
     override fun getItemCount(): Int = bookList.size
@@ -68,7 +82,6 @@ class FriendBookshelfActivity : AppCompatActivity() {
         val bookList = mutableListOf<FriendBook>()
         binding.recyclerview.layoutManager = LinearLayoutManager(this)
 
-        // Firestore에서 친구의 책 데이터를 가져옴
         db.collection("user")
             .document(friendUserId)
             .collection("user_books")
@@ -78,7 +91,6 @@ class FriendBookshelfActivity : AppCompatActivity() {
                     val book = document.toObject(FriendBook::class.java)
                     bookList.add(book)
                 }
-                // RecyclerView에 데이터 설정
                 binding.recyclerview.adapter = FriendBookAdapter(bookList)
             }
             .addOnFailureListener { e ->
